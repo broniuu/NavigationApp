@@ -24,7 +24,7 @@ class LoginActivity : AppCompatActivity(){
     private fun saveData(text: String){
         val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-        editor.putString("LOGIN_KEY", text)
+        editor.putString("MY_LOGIN_KEY", text)
         editor.apply()
     }
 }
