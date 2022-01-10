@@ -5,8 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.lang.reflect.Array.get
 
-class PostAdapter(private val exampleContacts: List<ExamplePost>) : RecyclerView.Adapter<PostAdapter.PostViewHolder>(){
+class PostAdapter(private val examplePosts: ArrayList<ExamplePost>) : RecyclerView.Adapter<PostAdapter.PostViewHolder>(){
     lateinit var mListener: OnItemClickListener
     interface OnItemClickListener{
         fun onItemClick(position: Int)
@@ -40,7 +41,7 @@ class PostAdapter(private val exampleContacts: List<ExamplePost>) : RecyclerView
         }
     }
 
-    private var mExamplePost: List<ExamplePost> = exampleContacts
+    private var mExamplePost: ArrayList<ExamplePost> = examplePosts
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val view = LayoutInflater.from(parent.context).
@@ -60,5 +61,14 @@ class PostAdapter(private val exampleContacts: List<ExamplePost>) : RecyclerView
 
     override fun getItemCount(): Int {
         return mExamplePost.size
+    }
+
+    fun removeAt(position: Int){
+        mExamplePost.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    fun getPost(position: Int) : ExamplePost {
+        return examplePosts[position]
     }
 }

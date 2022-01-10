@@ -20,8 +20,15 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class ItemActivity : AppCompatActivity() {
 
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://tgryl.pl/shoutbox/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    private val jsonPlaceholderAPI = retrofit.create(JsonPlaceholderAPI::class.java)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setSupportActionBar(findViewById(R.id.app_bar_item))
         setContentView(R.layout.activity_item)
 
         val login = intent.getStringExtra("KEY_LOGIN").toString()
@@ -65,11 +72,6 @@ class ItemActivity : AppCompatActivity() {
         startActivity(intent)
     }
     private fun updatePost(id:String, login:String, content:String){
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://tgryl.pl/shoutbox/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val jsonPlaceholderAPI = retrofit.create(JsonPlaceholderAPI::class.java)
 
         val putPost = Post(content, login)
         val call = jsonPlaceholderAPI.putPost(id, putPost)
@@ -87,6 +89,27 @@ class ItemActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<ExamplePost>, t: Throwable) {
+                Toast.makeText(this@ItemActivity, "${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+    fun deletePost(view: View){
+        val id = intent.getStringExtra("KEY_ID").toString()
+        val call = jsonPlaceholderAPI.deletePost(id)
+        call.enqueue(object : Callback<Void>{
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (!response.isSuccessful) {
+                    Toast.makeText(
+                        this@ItemActivity,
+                        "Code: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return
+                }
+                startMainActivity()
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
                 Toast.makeText(this@ItemActivity, "${t.message}", Toast.LENGTH_SHORT).show()
             }
         })

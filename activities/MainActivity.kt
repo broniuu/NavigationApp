@@ -6,6 +6,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.EditText
+import android.widget.SimpleAdapter
+import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -15,6 +17,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -25,6 +28,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.text.FieldPosition
 
 class MainActivity : AppCompatActivity() {
 
@@ -90,10 +94,10 @@ class MainActivity : AppCompatActivity() {
 
         val call = jsonPlaceholderAPI.getPosts()
 
-        call.enqueue(object : Callback<List<ExamplePost>> {
+        call.enqueue(object : Callback<ArrayList<ExamplePost>> {
             override fun onResponse(
-                call: Call<List<ExamplePost>>,
-                response: Response<List<ExamplePost>>
+                call: Call<ArrayList<ExamplePost>>,
+                response: Response<ArrayList<ExamplePost>>
             ) {
                 if (!response.isSuccessful) {
                     Toast.makeText(
@@ -113,6 +117,17 @@ class MainActivity : AppCompatActivity() {
 
                 mRecyclerView.layoutManager = mLayoutManager
                 mRecyclerView.adapter = mAdapter
+
+                val swipeHandler = object : SwipeToDeleteCallback(this@MainActivity) {
+                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                        val adapter = mRecyclerView.adapter as PostAdapter
+                        val id = adapter.getPost(viewHolder.adapterPosition).id
+                        adapter.removeAt(viewHolder.adapterPosition)
+                        deletePost(id)
+                    }
+                }
+                val itemTouchHelper = ItemTouchHelper(swipeHandler)
+                itemTouchHelper.attachToRecyclerView(mRecyclerView)
 
                 mAdapter.setOnItemClickListener(object : PostAdapter.OnItemClickListener{
                     override fun onItemClick(position: Int) {
@@ -137,7 +152,7 @@ class MainActivity : AppCompatActivity() {
 
             }
 
-            override fun onFailure(call: Call<List<ExamplePost>>, t: Throwable) {
+            override fun onFailure(call: Call<ArrayList<ExamplePost>>, t: Throwable) {
                 Toast.makeText(this@MainActivity, "${t.message}", Toast.LENGTH_SHORT).show()
             }
 
@@ -208,5 +223,30 @@ class MainActivity : AppCompatActivity() {
             getPosts()
             swipeRefreshLayout.isRefreshing = false
         }
+    }
+
+    private fun deletePost(id: String){
+        val call = jsonPlaceholderAPI.deletePost(id)
+        call.enqueue(object : Callback<Void>{
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (!response.isSuccessful) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Code: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return
+                }
+                Toast.makeText(
+                    this@MainActivity,
+                    "Post Deleted!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }
