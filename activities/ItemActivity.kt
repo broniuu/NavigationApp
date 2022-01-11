@@ -18,6 +18,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+
 class ItemActivity : AppCompatActivity() {
 
     private val retrofit = Retrofit.Builder()
@@ -26,9 +27,9 @@ class ItemActivity : AppCompatActivity() {
         .build()
     private val jsonPlaceholderAPI = retrofit.create(JsonPlaceholderAPI::class.java)
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setSupportActionBar(findViewById(R.id.app_bar_item))
         setContentView(R.layout.activity_item)
 
         val login = intent.getStringExtra("KEY_LOGIN").toString()
@@ -47,14 +48,6 @@ class ItemActivity : AppCompatActivity() {
             myEnter(contentEditText, id, login)
         }
     }
-//    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-//        return when (keyCode) {
-//            KeyEvent.KEYCODE_ENTER -> {
-//                true
-//            }
-//            else -> super.onKeyUp(keyCode, event)
-//        }
-//    }
 
     fun myEnter(editText: EditText, id:String, login:String) {
         editText.setOnKeyListener(View.OnKeyListener() {v, keyCode, event ->
